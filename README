@@ -1,0 +1,7 @@
+This script is used for forking Debian/Ubuntu,
+for example you need to rebuild the whole archive with the give gcc version.
+
+You need to put the these files into home of an user, aka `~',
+and then call them with crontab
+
+See README in `server' and `client subdir'
