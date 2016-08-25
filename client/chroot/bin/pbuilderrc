@@ -1,0 +1,12 @@
+# this is your configuration file for pbuilder.
+# the file in /usr/share/pbuilder/pbuilderrc is the default template.
+# /etc/pbuilderrc is the one meant for overwriting defaults in
+# the default template
+#
+# read pbuilderrc.5 document for notes on specific options.
+MIRRORSITE=http://mirrors.tuna.tsinghua.edu.cn/debian/
+APTCACHE=""
+PBUILDERSATISFYDEPENDSCMD=/usr/lib/pbuilder/pbuilder-satisfydepends-classic
+export DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS parallel=12"
+export EXTRAPACAGES="eatmydata"
+export LD_PRELOAD="${LD_PRELOAD:+$LD_PRELOAD:}libeatmydata.so"

@@ -1,0 +1,17 @@
+[debiansid]
+login                   = repo
+fqdn                    = IP_HERE
+method                  = scp
+incoming                = /home/repo/debian-avx/incoming
+
+[ubuntuxenial]
+login                   = repo
+fqdn                    = IP_HERE
+method                  = scp
+incoming                = /home/repo/ubuntu/incoming
+
+[ubuntuold]
+login                   = repo
+fqdn                    = IP_HERE
+method                  = scp
+incoming                = /home/repo/ubuntu-old/incoming
