@@ -1,0 +1,45 @@
+This script is used for forking Debian/Ubuntu,
+for example you need to rebuild the whole archive with the give gcc version.
+
+You need to put the these files into home of an user, aka `~',
+and then call them with crontab
+
+0. Dependencies
+   0.1 packages:
+       mysql-client
+       mysql-server
+       python-mysqldb
+       python-apt
+       reprepro
+       wget
+       dose-builddebcheck
+       findutils
+
+1. MySQL database
+   1.1 Database should be accessable by all of the build nodes 
+       with SELECT and UPDATE priviliage.
+   1.2 the `name' of database should be "$PROJECT$SUITE", for example 'debiansid'/'ubuntuxenial'
+   1.3 the table name should be architecture, for exmaple 'amd64'/'mipsel'
+   1.4 table struct see `scripts/table.sql'
+
+2. .repo-script.sh
+   2.1 MIRROR: where to download the metadata of source packages
+               it should be a mirror that hold the soruce packages
+
+   2.2 REMOVE_PROJECT_OLD: whether to remove the same packages in 
+       a repo named ${REPO}-old
+   2.3 REMOVE_LOGS_OLD: whether to remove old build logs
+   2.4 MYSQL_HOST/MYSQL_USER/MYSQL_PASSWORD: how to connect with MySQL
+
+3. reprepro conf/*: you can see the example in `debian'
+   3.1 incoming: the `Name:' in `incoming' should be same with SUITE name (sid/xenial etc)
+
+4. Usage: only scripts/buildable.sh be used directly, there are to way
+   4.1 `sh scripts/buildable.sh REPO noupdate'
+       This way, only processing uploaded packages from build nodes, and
+       remove packages from REPO-old if enabled;
+       remove old logs if enabled;
+   4.2 `sh scripts/buildable.sh ubuntu update'
+       This way does everything 4.1 does, and
+       4.2.1 run `reprepro update'
+       4.2.2 calculate packages that can be built, and write them into MySQL

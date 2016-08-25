@@ -1,0 +1,7 @@
+Name: jessie
+IncomingDir: incoming
+TempDir: temp
+LogDir: log
+Allow: sid>jessie unstable>jessie jessie-updates>jessie jessie-secrity>jessie
+Default: jessie
+Cleanup: unused_files on_deny

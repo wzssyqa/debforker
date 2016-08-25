@@ -1,0 +1,13 @@
+Name: all
+Method: http://mirror.tuna.tsinghua.edu.cn/debian/
+Architectures: amd64>mipsel
+UDebComponents: 
+FilterFormula: architecture (== all)
+IgnoreRelease: yes
+
+Name: all-updates
+Method: http://mirror.tuna.tsinghua.edu.cn/debian/
+Architectures: amd64>mipsel
+UDebComponents: 
+FilterFormula: architecture (== all)
+IgnoreRelease: yes

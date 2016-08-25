@@ -1,0 +1,24 @@
+Origin: Debian MIPSEL optimized
+Label: Debian MIPSEL optimized
+Suite: jessie
+Codename: jessie
+Version: 8
+Architectures: mipsel
+Components: main
+UDebComponents: main
+Description: Debian MIPSEL optimized
+SignWith: 6759F038
+Update: all
+Pull: jessie
+
+Origin: Debian MIPSEL optimized
+Label: Debian MIPSEL optimized
+Suite: jessie-updates
+Codename: jessie-updates
+Version: 8
+Architectures: mipsel
+Components: main
+UDebComponents: main
+Description: Debian MIPSEL optimized
+SignWith: 6759F038
+Update: all-updates
