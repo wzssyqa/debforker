@@ -54,7 +54,7 @@ done
 # gcc-5_5.2.1-17ubuntu1_mipsel.changes
 for i in `ls incoming |grep '.*_.*_.*.changes' 2>/dev/null`;do
 	pkg=$(echo $i | cut -d_ -f1)
-	if [ -n `echo $BLACKLIST_PACKAGES | grep " $pkg "` ];then
+	if [ -n `echo " $BLACKLIST_PACKAGES " | grep " $pkg "` ];then
 		continue
 	fi
 	ver=$(cat incoming/$i 2>> $LOGFILE| grep '^Version:' | head -1 |awk '{print $2}')

@@ -30,6 +30,7 @@ and then call them with crontab
        a repo named ${REPO}-old
    2.3 REMOVE_LOGS_OLD: whether to remove old build logs
    2.4 MYSQL_HOST/MYSQL_USER/MYSQL_PASSWORD: how to connect with MySQL
+   2.5 BLACKLIST_PACKAGES: don't process these packages.
 
 3. reprepro conf/*: you can see the example in `debian'
    3.1 incoming: the `Name:' in `incoming' should be same with SUITE name (sid/xenial etc)

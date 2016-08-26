@@ -21,22 +21,29 @@ def in_current_list(pkg, ver, c_l):
 	return False
 
 def in_blacklist(pkg, blacklist):
-	for b in blacklist:
-		if pkg.startswith(b):
-			return True
+	if pkg in backlist:
+		return True
 	return False
+	#for b in blacklist:
+	#	if pkg.startswith(b):
+	#		return True
+	#return False
 
 db = sys.argv[1]
 table = sys.argv[2]
 
-# some package may make build machine down
-p_blacklist = ['gcc-4.9', 'gcc-4.7', 'gcc-5', 'globus-']
 
 conf = open(os.path.expanduser('~/.repo-script.sh'), 'r')
 cf = {}
 for i in conf.readlines():
 	p = i.strip().split('=')
 	cf[p[0]]=p[1]
+
+# some package may make build machine down
+if BLACKLIST_PACKAGES in cf:
+	p_blacklist = cf['BLACKLIST_PACKAGES'].strip().split(" ")
+else:
+	p_blacklist = ['gcc-4.9', 'gcc-4.7', 'gcc-5', 'globus-']
 
 conn = MySQLdb.connect(host=cf['MYSQL_HOST'],user=cf['MYSQL_USER'],passwd=cf["MYSQL_PASSWORD"],db=db,charset="utf8")
 cursor = conn.cursor()
