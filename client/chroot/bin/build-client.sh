@@ -92,7 +92,7 @@ time="null"
 rm -rf sbuild/$subdir/$pkg_v; mkdir -p sbuild/$subdir/$pkg_v; cd sbuild/$subdir/$pkg_v
 pkg_cv=$(echo $pkg_v | sed 's/_[1-9]*:/_/g')
 
-apt-get source --download-only ${pkg}=${ver}
+apt-get source -oAPT::Get::Only-Source=yes --download-only ${pkg}=${ver}
 if [ ! -e ${pkg_cv}.dsc ];then
 	rm -f *.dsc
 	mark_status $pkg $ver $date $status
