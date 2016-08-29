@@ -154,4 +154,4 @@ if [ -n "$(ls ${pkg}*${DB}.upload)" ]; then
 fi
 #######
 mark_status $pkg $ver $date $status $disk $time $fstage $summary
-scp $logfile repo@192.168.252.150:~/${PROJECT_HOME}/incoming 2>&1
+scp ./$logfile repo@192.168.252.150:~/${PROJECT_HOME}/incoming 2>&1
