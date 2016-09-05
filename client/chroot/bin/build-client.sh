@@ -30,6 +30,16 @@ else
 	PBUILDERRC=pbuilderrc
 fi
 
+if [ "$REMOVE_OLDFILES" = "yes" ];then
+	for i in `ls sbuild`;do
+		tmp=`cat ~/chroot/stamps/* | grep $i`
+		if [ -z "$tmp" ];then
+			rm -rf sbuild/$i &
+		fi
+	done
+fi
+
+
 PROJECT=$(eval echo \$$DIST)
 PROJECT_HOME=$(eval echo \$$PROJECT)
 DB=${PROJECT}${DIST}
@@ -98,7 +108,7 @@ ssh repo@${MYSQL_HOST} "mkdir ~/${PROJECT_HOME}/incoming/${ARCH}-stamp" 2>&1
 [ "$?" -ne "0" ] && exit 0
 
 PKG_V=$(get_buildable_tmp |grep -v -e "^pkg.*ver$")
-echo $PKG_V
+echo $PKG_V | tee ~/chroot/stamps/$UUID
 if [ -z "$(echo $PKG_V |grep '.* .*')" ];then
 	ssh repo@${MYSQL_HOST} "rmdir ~/${PROJECT_HOME}/incoming/${ARCH}-stamp" 2>&1
 	exit 0
