@@ -6,9 +6,10 @@ and then call them with crontab
 
 0. Dependencies
    0.1 packages:
-       mysql-client
-       mysql-server
+       mysql-client/mysql-server
+         or postgresql-client/postgresql-server
        python-mysqldb
+         or python-psycopg2
        python-apt
        reprepro
        wget

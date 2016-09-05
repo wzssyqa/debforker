@@ -2,7 +2,6 @@
 
 import sys
 import os
-import MySQLdb
 import time
 import apt_pkg
 apt_pkg.init_system()
@@ -32,7 +31,6 @@ def in_blacklist(pkg, blacklist):
 db = sys.argv[1]
 table = sys.argv[2]
 
-
 conf = open(os.path.expanduser('~/.repo-script.sh'), 'r')
 cf = {}
 for i in conf.readlines():
@@ -45,7 +43,14 @@ if BLACKLIST_PACKAGES in cf:
 else:
 	p_blacklist = ['gcc-4.9', 'gcc-4.7', 'gcc-5', 'globus-']
 
-conn = MySQLdb.connect(host=cf['MYSQL_HOST'],user=cf['MYSQL_USER'],passwd=cf["MYSQL_PASSWORD"],db=db,charset="utf8")
+if cf['DB_TYPE'] == 'MYSQL':
+	import MySQLdb
+	conn = MySQLdb.connect(host=cf['MYSQL_HOST'], user=cf['MYSQL_USER'], passwd=cf["MYSQL_PASSWORD"], db=db, charset="utf8")
+elif cf['DB_TYPE'] == 'POSTGRE':
+	import psycopg2
+	conn = psycopg2.connect(host=cf['POSTGRE_HOST'], user=cf['POSTGRE_USER'], password=cf["POSTGRE_PASSWORD"], database=db)
+else:
+	sys.exit(1)
 cursor = conn.cursor()
 
 sql = "select pkg,ver from %s" % (table)

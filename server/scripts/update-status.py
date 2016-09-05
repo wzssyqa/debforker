@@ -2,7 +2,6 @@
 
 import sys
 import os
-import MySQLdb
 import time
 
 db = sys.argv[1]
@@ -17,7 +16,12 @@ for i in conf.readlines():
 	p = i.strip().split('=')
 	cf[p[0]]=p[1]
 
-conn = MySQLdb.connect(host=cf['MYSQL_HOST'],user=cf['MYSQL_USER'],passwd=cf["MYSQL_PASSWORD"],db=db,charset="utf8")
+if cf['DB_TYPE'] == 'MYSQL':
+	import MySQLdb
+	conn = MySQLdb.connect(host=cf['MYSQL_HOST'],user=cf['MYSQL_USER'],passwd=cf["MYSQL_PASSWORD"],db=db,charset="utf8")
+elif cf['DB_TYPE'] == 'POSTGRE':
+	import psycopg2
+	conn = psycopg2.connect(host=cf['POST_GRE_HOST'], user=cf['POSTGRE_USER'], password=cf["POSTGRE_PASSWORD"], database=db)
 cursor = conn.cursor()
 
 for i in sys.argv[2:]:

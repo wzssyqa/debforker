@@ -6,9 +6,10 @@ and then call them with crontab
 
 0. Dependencies
    0.1 packages:
-       Required: bc mysql-client dput pbuilder uuid-runtime ntp less dpkg-dev sudo
+       Required: bc mysql-client postgresql-client dput pbuilder uuid-runtime
+                 less dpkg-dev sudo
        Suggestion or Requried with some other options:
-             vim bc kexec-tools eatmydata ntp
+             vim kexec-tools eatmydata ntp
    0.2 you will need to add `deb-src' entries into /etc/apt/sources.list,
        to help getting source packages
    0.3 You will need `NOPASSWD' sudo permission,

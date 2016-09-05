@@ -35,14 +35,39 @@ PROJECT_HOME=$(eval echo \$$PROJECT)
 DB=${PROJECT}${DIST}
 UUID=`uuidgen`
 
+if [ "$DB_TYPE" = "MYSQL" ];then
+	rm -f ~/.my.cnf
+	touch ~/.my.cnf
+	chmod 600 ~/.my.cnf
+	echo "[client]" >> ~/.my.cnf
+	echo "password=$MYSQL_PASSWORD" >> ~/.my.cnf
+elif [ "$DB_TYPE" = "POSTGRE" ];then
+	rm -f ~/.pgpass.conf
+	touch ~/.pgpass.conf
+	chmod 600 ~/.pgpass.conf
+	echo "${HOSTGRE_HOST}:5432:${DB}:${POSTGRE_USER}:${POSTGRE_PASSWORD}" > ~/.pgpass.conf
+else
+	echo "Error: unknow DB_TYPE: only MYSQL and POSTGRE are supported"
+	exit -1
+fi
+
 [ "$(ls stamps 2>/dev/null | wc -l)" -ge "${MAX_JOBS}" ] && exit 0
 touch ~/chroot/stamps/$UUID
 trap "rm -f ~/chroot/stamps/$UUID" EXIT
 
-get_buildable_tmp(){
-mysql -h$MYSQL_HOST -u$MYSQL_USER -p$MYSQL_PASSWORD $DB <<EOF
+get_buildable_tmp_postgre(){
+psql --no-password -h$POSTGRE_HOST $POSTGRE_USER $DB <<EOF
 SELECT pkg,ver FROM $ARCH WHERE status='waiting' LIMIT 1;
 EOF
+}
+get_buildable_tmp(){
+if [ "$DB_TYPE" = "MYSQL" ]
+mysql -h$MYSQL_HOST -u$MYSQL_USER $DB <<EOF
+SELECT pkg,ver FROM $ARCH WHERE status='waiting' LIMIT 1;
+EOF
+elif [ "$DB_TYPE" = "POSTGRE" ];then
+	get_buildable_tmp_postgre | tail -n +3 | head -n -2 | sed 's/|//g' | xargs
+fi
 }
 
 mark_status(){
@@ -55,7 +80,16 @@ local time=$6
 local fstage=$7
 local summary=$8
 local buildd=$HOSTNAME
-mysql -h$MYSQL_HOST -u$MYSQL_USER -p$MYSQL_PASSWORD $DB <<EOF
+local cmd=""
+if [ "$DB_TYPE" = "MYSQL" ];then
+	cmd=mysql -h$MYSQL_HOST -u$MYSQL_USER $DB
+elif [ "$DB_TYPE" = "POSTGRE" ];then
+	cmd=psql --no-password -h$POSTGRE_HOST $POSTGRE_USER $DB
+else
+	return
+fi
+
+$cmd <<EOF
 UPDATE $ARCH SET status="$status", date="$date", buildd="$buildd", disk="$disk", time="$time", fstage="$fstage", summary="$summary" WHERE pkg="$pkg" and ver="$ver";
 EOF
 }
