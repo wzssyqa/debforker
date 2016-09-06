@@ -25,8 +25,6 @@ fi
 
 if [ "$(dpkg-architecture -qDEB_BUILD_ARCH)" != "$ARCH" ];then
 	export DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS nocheck"
-	PBUILDERRC=pbuilderrc-nocheck
-else
 	PBUILDERRC=pbuilderrc
 fi
 
@@ -145,20 +143,18 @@ fi
 
 date1=$(LC_ALL=C date +%s)
 logfile="${pkg_v}_${ARCH}-${date1}.build"
-if [ "$ARCH" = "amd64" ];then
-   sudo DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" pbuilder --build \
-	  --debbuildopts "-b --hook-source=\"grep 'dh \$\@ .*--parallel' debian/rules || sed -i '/dh \$\@/ s/$/ --parallel/' debian/rules\"" \
-          --logfile $logfile --buildresult $(pwd) --configfile ~/chroot/bin/${PBUILDERRC} \
-          --basetgz ~/chroot/${DIST}-${ARCH}.tar.gz --buildplace /tmp \
-          --timeout 40h \
-            ${pkg_cv}.dsc >/dev/null
-else
+if [ "$BUILDD_TOOL" = 'pbuilder' ];then
    sudo DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" pbuilder --build \
 	  --binary-arch \
           --logfile $logfile --buildresult $(pwd) --configfile ~/chroot/bin/${PBUILDERRC} \
           --basetgz ~/chroot/${DIST}-${ARCH}.tar.gz --buildplace /tmp \
           --timeout 40h \
             ${pkg_cv}.dsc >/dev/null
+elif [ "$BUILDD_TOOL" = 'sbuild' ];then
+   DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" sbuild -d $DIST --arch=${ARCH} ${pkg_cv}
+   mv -f *.build $logfile
+else
+	false
 fi
 
 if [ "$?" -eq "0" ];then
