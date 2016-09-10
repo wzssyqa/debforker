@@ -1,0 +1,44 @@
+This script is used for forking Debian/Ubuntu,
+for example you need to rebuild the whole archive with the give gcc version.
+
+You need to put the these files into home of an user, aka `~',
+and then call them with crontab
+
+0. Dependencies
+   0.1 packages:
+       Required: bc mysql-client postgresql-client dput pbuilder uuid-runtime
+                 less dpkg-dev sudo
+       Suggestion or Requried with some other options:
+             vim kexec-tools eatmydata ntp
+   0.2 you will need to add `deb-src' entries into /etc/apt/sources.list,
+       to help getting source packages
+   0.3 You will need `NOPASSWD' sudo permission,
+       Or add `NOPASSWD' sudo permission for pbuilder and `apt-get update'
+   0.4 You will need password-free ssh key config to the server,
+       for create lock and upload packages
+
+1. pbuilder chroot targz
+   1.1 pbuilder chroot targz should be in `chroot' directory and with the name
+       `SUITE-ARCH.tar.gz', for example `sid-amd64.tar.gz'
+       
+       You can use `sh ~/chroot/bin/update-chroot.sh ARCH SUITE' to update chroot targz
+   1.2 Install `eatmydata' for both in and out of chroot is suggested
+
+2. To build package, you can invoke: `cd chroot; bash bin/build-client.sh ARCH SUITE'
+
+3. chroot/bin/dput.cf: the identifier should be the same with `database name',
+       for example: `debiansid'/`ubuntuxenial' etc
+   TODO: generate dput.cf dynamicly
+
+4. chroot/bin/buildd-client.conf: 
+   4.1 eval to get the repo name of dists:
+               sid=debian
+       This is used to get DB name etc.
+   4.2 eval to get the directory name in server of the project
+               debian=debian-avx
+       This means that we put `debian' in a directory named `debian-avx'
+   4.3 allowed_arch/allowed_dist: restricted to these arch and dist
+
+5. pbuilderrc/pbuilderrc-nocheck: pbuilder configuration for pbuild
+   TODO: generate pbuilderrc dynamicly
+   

@@ -50,10 +50,10 @@ if [ "$DB_TYPE" = "MYSQL" ];then
 	echo "[client]" >> ~/.my.cnf
 	echo "password=$MYSQL_PASSWORD" >> ~/.my.cnf
 elif [ "$DB_TYPE" = "POSTGRE" ];then
-	rm -f ~/.pgpass.conf
-	touch ~/.pgpass.conf
-	chmod 600 ~/.pgpass.conf
-	echo "${HOSTGRE_HOST}:5432:${DB}:${POSTGRE_USER}:${POSTGRE_PASSWORD}" > ~/.pgpass.conf
+	rm -f ~/.pgpass
+	touch ~/.pgpass
+	chmod 600 ~/.pgpass
+	echo "${POSTGRE_HOST}:5432:${DB}:${POSTGRE_USER}:${POSTGRE_PASSWORD}" > ~/.pgpass
 else
 	echo "Error: unknow DB_TYPE: only MYSQL and POSTGRE are supported"
 	exit -1
@@ -69,7 +69,7 @@ SELECT pkg,ver FROM $ARCH WHERE status='waiting' LIMIT 1;
 EOF
 }
 get_buildable_tmp(){
-if [ "$DB_TYPE" = "MYSQL" ]
+if [ "$DB_TYPE" = "MYSQL" ];then
 mysql -h$MYSQL_HOST -u$MYSQL_USER $DB <<EOF
 SELECT pkg,ver FROM $ARCH WHERE status='waiting' LIMIT 1;
 EOF
@@ -90,32 +90,32 @@ local summary=$8
 local buildd=$HOSTNAME
 local cmd=""
 if [ "$DB_TYPE" = "MYSQL" ];then
-	cmd=mysql -h$MYSQL_HOST -u$MYSQL_USER $DB
+	cmd="mysql -h$MYSQL_HOST -u$MYSQL_USER $DB"
 elif [ "$DB_TYPE" = "POSTGRE" ];then
-	cmd=psql --no-password -h$POSTGRE_HOST $POSTGRE_USER $DB
+	cmd="psql --no-password -h$POSTGRE_HOST $POSTGRE_USER $DB"
 else
 	return
 fi
 
 $cmd <<EOF
-UPDATE $ARCH SET status="$status", date="$date", buildd="$buildd", disk="$disk", time="$time", fstage="$fstage", summary="$summary" WHERE pkg="$pkg" and ver="$ver";
+UPDATE $ARCH SET status='$status', date='$date', buildd='$buildd', disk='$disk', time='$time', fstage='$fstage', summary='$summary' WHERE pkg='$pkg' and ver='$ver';
 EOF
 }
 
-ssh repo@${MYSQL_HOST} "mkdir ~/${PROJECT_HOME}/incoming/${ARCH}-stamp" 2>&1
+ssh ${ARCHIVE_USER}@${ARCHIVE_HOST} "mkdir ~/${PROJECT_HOME}/incoming/${ARCH}-stamp" 2>&1
 [ "$?" -ne "0" ] && exit 0
 
 PKG_V=$(get_buildable_tmp |grep -v -e "^pkg.*ver$")
 echo $PKG_V | tee ~/chroot/stamps/$UUID
 if [ -z "$(echo $PKG_V |grep '.* .*')" ];then
-	ssh repo@${MYSQL_HOST} "rmdir ~/${PROJECT_HOME}/incoming/${ARCH}-stamp" 2>&1
+	ssh ${ARCHIVE_USER}@${ARCHIVE_HOST} "rmdir ~/${PROJECT_HOME}/incoming/${ARCH}-stamp" 2>&1
 	exit 0
 fi
 pkg=$(echo $PKG_V | cut -d' ' -f1)
 ver=$(echo $PKG_V | cut -d' ' -f2)
 date=$(LC_ALL=C date +%s)
 mark_status $pkg $ver $date "building"
-ssh repo@${MYSQL_HOST} "rmdir ~/${PROJECT_HOME}/incoming/${ARCH}-stamp" >/dev/null 2>&1
+ssh ${ARCHIVE_USER}@${ARCHIVE_HOST} "rmdir ~/${PROJECT_HOME}/incoming/${ARCH}-stamp" >/dev/null 2>&1
 [ "$?" -ne "0" ] && exit 0
 
 ########
@@ -134,11 +134,13 @@ time="null"
 rm -rf sbuild/$subdir/$pkg_v; mkdir -p sbuild/$subdir/$pkg_v; cd sbuild/$subdir/$pkg_v
 pkg_cv=$(echo $pkg_v | sed 's/_[1-9]*:/_/g')
 
-apt-get source -oAPT::Get::Only-Source=yes --download-only ${pkg}=${ver}
-if [ ! -e ${pkg_cv}.dsc ];then
-	rm -f *.dsc
-	mark_status $pkg $ver $date $status
-	exit 0
+if [ "$BUILDD_TOOL" = 'pbuilder' ];then
+	apt-get source -oAPT::Get::Only-Source=yes --download-only ${pkg}=${ver}
+	if [ ! -e ${pkg_cv}.dsc ];then
+		rm -f *.dsc
+		mark_status $pkg $ver $date $status
+		exit 0
+	fi
 fi
 
 date1=$(LC_ALL=C date +%s)
@@ -194,4 +196,4 @@ if [ -n "$(ls ${pkg}*${DB}.upload)" ]; then
 fi
 #######
 mark_status $pkg $ver $date $status $disk $time $fstage $summary
-scp ./$logfile repo@192.168.252.150:~/${PROJECT_HOME}/incoming 2>&1
+scp ./$logfile ${ARCHIVE_USER}@192.168.252.150:~/${PROJECT_HOME}/incoming 2>&1
