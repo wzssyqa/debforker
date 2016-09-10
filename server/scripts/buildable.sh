@@ -83,12 +83,12 @@ python ~/scripts/update-status.py ubuntu${DIST} $(ls incoming/*.upload 2>/dev/nu
 LC_ALL=C date > temp/buildable.stamp
 
 for arch in $ARCHES;do
-	if [ "$REMOVE_PROJECT_OLD" != "yes" ] || [ !-d ~/{REPO}-old ];then
+	if [ "$REMOVE_PROJECT_OLD" != "yes" ] || [ ! -d ~/${REPO}-old ];then
 		continue
 	fi
 	reprepro -A $arch list ${DIST} | awk '{print $2}' > temp/has_packages
 	to_remove=""
-	for i in `reprepro -b ~/{REPO}-old -A $arch list $DIST | cut -d' ' -f2`;do
+	for i in `reprepro -b ~/${REPO}-old -A $arch list $DIST | cut -d' ' -f2`;do
 		tmp=`grep "^$i$" temp/has_packages`
 		if [ -n "$tmp" ];then
 			to_remove="$to_remove $i"

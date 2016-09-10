@@ -13,7 +13,7 @@ while True:
 		break
 	if not line.startswith('  package: '):
 		continue
-	pkg=line.strip().replace('package: ', '')
+	pkg=line.strip().replace('package: ', '').replace("src:", "")
 	line=infile.readline()
 	if not line.startswith('  version: '):
 		continue

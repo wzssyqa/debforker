@@ -20,7 +20,7 @@ def in_current_list(pkg, ver, c_l):
 	return False
 
 def in_blacklist(pkg, blacklist):
-	if pkg in backlist:
+	if pkg in blacklist:
 		return True
 	return False
 	#for b in blacklist:
@@ -35,10 +35,12 @@ conf = open(os.path.expanduser('~/.repo-script.sh'), 'r')
 cf = {}
 for i in conf.readlines():
 	p = i.strip().split('=')
+	if len(p) < 2:
+		continue
 	cf[p[0]]=p[1]
 
 # some package may make build machine down
-if BLACKLIST_PACKAGES in cf:
+if 'BLACKLIST_PACKAGES' in cf:
 	p_blacklist = cf['BLACKLIST_PACKAGES'].strip().split(" ")
 else:
 	p_blacklist = ['gcc-4.9', 'gcc-4.7', 'gcc-5', 'globus-']
@@ -51,11 +53,12 @@ elif cf['DB_TYPE'] == 'POSTGRE':
 	conn = psycopg2.connect(host=cf['POSTGRE_HOST'], user=cf['POSTGRE_USER'], password=cf["POSTGRE_PASSWORD"], database=db)
 else:
 	sys.exit(1)
+
 cursor = conn.cursor()
 
 sql = "select pkg,ver from %s" % (table)
-if cursor.execute(sql) < 1:
-	sys.exit(1)
+cursor.execute(sql)
+
 current_table=cursor.fetchall()
 
 i_sql = "insert into %s(pkg, ver, date, status) values " % (table)
