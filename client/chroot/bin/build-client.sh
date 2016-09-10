@@ -154,6 +154,7 @@ if [ "$BUILDD_TOOL" = 'pbuilder' ];then
             ${pkg_cv}.dsc >/dev/null
 elif [ "$BUILDD_TOOL" = 'sbuild' ];then
    DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" sbuild -d $DIST --arch=${ARCH} ${pkg_cv}
+   find -type l | xargs rm -f
    mv -f *.build $logfile
 else
 	false
@@ -196,4 +197,4 @@ if [ -n "$(ls ${pkg}*${DB}.upload)" ]; then
 fi
 #######
 mark_status $pkg $ver $date $status $disk $time $fstage $summary
-scp ./$logfile ${ARCHIVE_USER}@192.168.252.150:~/${PROJECT_HOME}/incoming 2>&1
+scp ./$logfile ${ARCHIVE_USER}@${ARCHIVE_HOST}:~/${PROJECT_HOME}/incoming 2>&1
