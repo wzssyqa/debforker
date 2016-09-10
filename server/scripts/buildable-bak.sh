@@ -21,14 +21,9 @@ fi
 
 echo "$0 $@" >> temp/stamp
 
-DIST=$3
-#FIXME: get correct ARCHS, COMPENENTS
+DIST=$(cat conf/distributions | grep Suite |head -1 | cut -d' ' -f2)
 ARCHES=$(cat conf/distributions | grep Architectures |head -1 | sed 's/amd64//g' | cut -d' ' -f2-)
 COMPENENTS=$(cat conf/distributions | grep Components |head -1 | cut -d' ' -f2-)
-if [ -z "$DIST" ];then
-	DIST=$(cat conf/distributions | grep Suite |head -1 | cut -d' ' -f2)
-fi
-
 STATUS_LIST="waiting building attampted failed uploaded installed"
 
 if [ -z "$DIST" ] || [ -z "$ARCHES" ] || [ -z "$COMPENENTS" ];then
@@ -38,13 +33,13 @@ if [ -z "$DIST" ] || [ -z "$ARCHES" ] || [ -z "$COMPENENTS" ];then
 fi
 
 for a in $ARCHES;do
-	[ incoming-$DIST/${a}-stamp -ot temp/buildable.stamp ] && rmdir incoming-$DIST/${a}-stamp
+	[ incoming/${a}-stamp -ot temp/buildable.stamp ] && rmdir incoming/${a}-stamp
 done
 
 # buildlog
 mkdir -p buildlog
 # gcc-5_5.2.1-17ubuntu1_mipsel-20150919-0857.build
-for i in `ls incoming-$DIST/*_*_mips*-*.build 2>/dev/null`;do
+for i in `ls incoming/*_*_mips*-*.build 2>/dev/null`;do
 	pkg=$(echo $i | cut -d/ -f2 | cut -d_ -f1)
 	if [ "$(echo $pkg |cut -c1-3)" = "lib" ];then
                 subdir="$(echo $pkg |cut -c1-4)"
@@ -57,34 +52,33 @@ done
 
 # process incoming
 # gcc-5_5.2.1-17ubuntu1_mipsel.changes
-for i in `ls incoming-$DIST |grep '.*_.*_.*.changes' 2>/dev/null`;do
+for i in `ls incoming |grep '.*_.*_.*.changes' 2>/dev/null`;do
 	pkg=$(echo $i | cut -d_ -f1)
-	tmp=$(echo " $BLACKLIST_PACKAGES " | grep " $pkg ")
-	if [ -n "$tmp" ];then
+	if [ -n `echo " $BLACKLIST_PACKAGES " | grep " $pkg "` ];then
 		continue
 	fi
-	ver=$(cat incoming-$DIST/$i 2>> $LOGFILE| grep '^Version:' | head -1 |awk '{print $2}')
+	ver=$(cat incoming/$i 2>> $LOGFILE| grep '^Version:' | head -1 |awk '{print $2}')
 	arch=$(echo $i | cut -d_ -f3 | sed 's/.changes//g')
-	dbgsym=$(cat incoming-$DIST/$i |grep -- -dbgsym_ | cut -d' ' -f 4 | grep '.deb$' | cut -d'_' -f1 |sort |uniq)
+	dbgsym=$(cat incoming/$i |grep -- -dbgsym_ | cut -d' ' -f 4 | grep '.deb$' | cut -d'_' -f1 |sort |uniq)
 	for k in $dbgsym;do
-		sed -i "s/^Binary: /Binary: $k /g" incoming-$DIST/$i
+		sed -i "s/^Binary: /Binary: $k /g" incoming/$i
 	done
 	echo "reprepro processincoming $DIST $i ..." >>$LOGFILE 2>&1
 	reprepro processincoming $DIST $i >>$LOGFILE 2>&1
 	if [ "$?" -eq 0 ];then
-		echo "$pkg $ver $arch installed $(date -u +%s) incoming-$DIST/${pkg}_${ver}_${arch}.upload" >> $LOGFILE 
-		echo "$pkg $ver $arch installed $(date -u +%s)" > incoming-$DIST/${pkg}_${ver}_${arch}.upload
+		echo "$pkg $ver $arch installed $(date -u +%s) incoming/${pkg}_${ver}_${arch}.upload" >> $LOGFILE 
+		echo "$pkg $ver $arch installed $(date -u +%s)" > incoming/${pkg}_${ver}_${arch}.upload
 	fi
 done
 
-for i in `find incoming-$DIST -mmin +90 -a \( -name *.changes -o -name *deb \)`;do
+for i in `find incoming -mmin +90 -a \( -name *.changes -o -name *deb \)`;do
 	mv -f $i incoming-overflow/ >/dev/null 2>&1 
 done
 
 #       update package status: building, uploaded, installed, attempted.
 # File name like pkg_ver_arch.upload
 # File contect "pkg ver arch STATUS date fstage summary buildd time disk"
-python ~/scripts/update-status.py ubuntu${DIST} $(ls incoming-$DIST/*.upload 2>/dev/null || true)
+python ~/scripts/update-status.py ubuntu${DIST} $(ls incoming/*.upload 2>/dev/null || true)
 
 LC_ALL=C date > temp/buildable.stamp
 

@@ -1,17 +1,11 @@
-[debiansid]
-login                   = repo
-fqdn                    = IP_HERE
+[ubuntuyakkety]
+login                   = ubuntu
+fqdn                    = debian-xlp.le.imgtec.org
 method                  = scp
-incoming                = /home/repo/debian-avx/incoming
+incoming                = ~/ubuntu/incoming-yakkety
 
 [ubuntuxenial]
-login                   = repo
-fqdn                    = IP_HERE
+login                   = ubuntu
+fqdn                    = debian-xlp.le.imgtec.org
 method                  = scp
-incoming                = /home/repo/ubuntu/incoming
-
-[ubuntuold]
-login                   = repo
-fqdn                    = IP_HERE
-method                  = scp
-incoming                = /home/repo/ubuntu-old/incoming
+incoming                = ~/ubuntu/incoming-xenial

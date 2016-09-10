@@ -102,20 +102,20 @@ UPDATE $ARCH SET status='$status', date='$date', buildd='$buildd', disk='$disk',
 EOF
 }
 
-ssh ${ARCHIVE_USER}@${ARCHIVE_HOST} "mkdir ~/${PROJECT_HOME}/incoming/${ARCH}-stamp" 2>&1
+ssh ${ARCHIVE_USER}@${ARCHIVE_HOST} "mkdir ~/${PROJECT_HOME}/incoming-$DIST/${ARCH}-stamp" 2>&1
 [ "$?" -ne "0" ] && exit 0
 
 PKG_V=$(get_buildable_tmp |grep -v -e "^pkg.*ver$")
 echo $PKG_V | tee ~/chroot/stamps/$UUID
 if [ -z "$(echo $PKG_V |grep '.* .*')" ];then
-	ssh ${ARCHIVE_USER}@${ARCHIVE_HOST} "rmdir ~/${PROJECT_HOME}/incoming/${ARCH}-stamp" 2>&1
+	ssh ${ARCHIVE_USER}@${ARCHIVE_HOST} "rmdir ~/${PROJECT_HOME}/incoming-$DIST/${ARCH}-stamp" 2>&1
 	exit 0
 fi
 pkg=$(echo $PKG_V | cut -d' ' -f1)
 ver=$(echo $PKG_V | cut -d' ' -f2)
 date=$(LC_ALL=C date +%s)
 mark_status $pkg $ver $date "building"
-ssh ${ARCHIVE_USER}@${ARCHIVE_HOST} "rmdir ~/${PROJECT_HOME}/incoming/${ARCH}-stamp" >/dev/null 2>&1
+ssh ${ARCHIVE_USER}@${ARCHIVE_HOST} "rmdir ~/${PROJECT_HOME}/incoming-$DIST/${ARCH}-stamp" >/dev/null 2>&1
 [ "$?" -ne "0" ] && exit 0
 
 ########
@@ -197,4 +197,4 @@ if [ -n "$(ls ${pkg}*${DB}.upload)" ]; then
 fi
 #######
 mark_status $pkg $ver $date $status $disk $time $fstage $summary
-scp ./$logfile ${ARCHIVE_USER}@${ARCHIVE_HOST}:~/${PROJECT_HOME}/incoming 2>&1
+scp ./$logfile ${ARCHIVE_USER}@${ARCHIVE_HOST}:~/${PROJECT_HOME}/incoming-$DIST 2>&1
