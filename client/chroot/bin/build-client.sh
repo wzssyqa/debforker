@@ -64,7 +64,7 @@ touch ~/chroot/stamps/$UUID
 trap "rm -f ~/chroot/stamps/$UUID" EXIT
 
 get_buildable_tmp_postgre(){
-psql --no-password -h$POSTGRE_HOST $POSTGRE_USER $DB <<EOF
+psql --no-password -h$POSTGRE_HOST $DB $POSTGRE_USER <<EOF
 SELECT pkg,ver FROM $ARCH WHERE status='waiting' LIMIT 1;
 EOF
 }
