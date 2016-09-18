@@ -97,12 +97,12 @@ local cmd=""
 if [ "$DB_TYPE" = "MYSQL" ];then
 	cmd="mysql --defaults-file=.my.cnf.$UUID -h$MYSQL_HOST -u$MYSQL_USER $DB"
 elif [ "$DB_TYPE" = "POSTGRE" ];then
-	cmd="PGPASSFILE=.pgpass.$UUID psql --no-password -h$POSTGRE_HOST $DB $POSTGRE_USER"
+	cmd="psql --no-password -h$POSTGRE_HOST $DB $POSTGRE_USER"
 else
 	return
 fi
 
-$cmd <<EOF
+PGPASSFILE=.pgpass.$UUID $cmd <<EOF
 UPDATE $ARCH SET status='$status', date='$date', buildd='$buildd', disk='$disk', time='$time', fstage='$fstage', summary='$summary' WHERE pkg='$pkg' and ver='$ver';
 EOF
 }
