@@ -37,40 +37,45 @@ if [ "$REMOVE_OLDFILES" = "yes" ];then
 	done
 fi
 
+for i in `ls .my.cnf.* .pgpass.* 2>/dev/null`;do
+	uu=`echo $i | awk -F. '{print $NF}'`
+	[ -z "$(ls stamps | grep $uu)" ] && rm -f $i
+done
 
 PROJECT=$(eval echo \$$DIST)
 PROJECT_HOME=$(eval echo \$$PROJECT)
 DB=${PROJECT}${DIST}
 UUID=`uuidgen`
 
+[ "$(ls stamps 2>/dev/null | wc -l)" -ge "${MAX_JOBS}" ] && exit 0
+touch ~/chroot/stamps/$UUID
+trap "rm -f ~/chroot/stamps/$UUID ~/chroot/.my.cnf.$UUID ~/chroot/.pgpass.$UUID" EXIT
+
 if [ "$DB_TYPE" = "MYSQL" ];then
-	rm -f ~/.my.cnf
-	touch ~/.my.cnf
-	chmod 600 ~/.my.cnf
-	echo "[client]" >> ~/.my.cnf
-	echo "password=$MYSQL_PASSWORD" >> ~/.my.cnf
+	rm -f .my.cnf.$UUID
+	touch .my.cnf.$UUID
+	chmod 600 .my.cnf.$UUID
+	echo "[client]" >> .my.cnf.$UUID
+	echo "password=$MYSQL_PASSWORD" >> .my.cnf.$UUID
 elif [ "$DB_TYPE" = "POSTGRE" ];then
-	rm -f ~/.pgpass
-	touch ~/.pgpass
-	chmod 600 ~/.pgpass
-	echo "${POSTGRE_HOST}:5432:${DB}:${POSTGRE_USER}:${POSTGRE_PASSWORD}" > ~/.pgpass
+	rm -f .pgpass.$UUID
+	touch .pgpass.$UUID
+	chmod 600 .pgpass.$UUID
+	echo "${POSTGRE_HOST}:5432:${DB}:${POSTGRE_USER}:${POSTGRE_PASSWORD}" > .pgpass.$UUID
 else
 	echo "Error: unknow DB_TYPE: only MYSQL and POSTGRE are supported"
 	exit -1
 fi
 
-[ "$(ls stamps 2>/dev/null | wc -l)" -ge "${MAX_JOBS}" ] && exit 0
-touch ~/chroot/stamps/$UUID
-trap "rm -f ~/chroot/stamps/$UUID" EXIT
 
 get_buildable_tmp_postgre(){
-psql --no-password -h$POSTGRE_HOST $DB $POSTGRE_USER <<EOF
+PGPASSFILE=.pgpass.$UUID psql --no-password -h$POSTGRE_HOST $DB $POSTGRE_USER <<EOF
 SELECT pkg,ver FROM $ARCH WHERE status='waiting' LIMIT 1;
 EOF
 }
 get_buildable_tmp(){
 if [ "$DB_TYPE" = "MYSQL" ];then
-mysql -h$MYSQL_HOST -u$MYSQL_USER $DB <<EOF
+mysql --defaults-file=.my.cnf.$UUID -h$MYSQL_HOST -u$MYSQL_USER $DB <<EOF
 SELECT pkg,ver FROM $ARCH WHERE status='waiting' LIMIT 1;
 EOF
 elif [ "$DB_TYPE" = "POSTGRE" ];then
@@ -90,9 +95,9 @@ local summary=$8
 local buildd=$HOSTNAME
 local cmd=""
 if [ "$DB_TYPE" = "MYSQL" ];then
-	cmd="mysql -h$MYSQL_HOST -u$MYSQL_USER $DB"
+	cmd="mysql --defaults-file=.my.cnf.$UUID -h$MYSQL_HOST -u$MYSQL_USER $DB"
 elif [ "$DB_TYPE" = "POSTGRE" ];then
-	cmd="psql --no-password -h$POSTGRE_HOST $DB $POSTGRE_USER"
+	cmd="PGPASSFILE=.pgpass.$UUID psql --no-password -h$POSTGRE_HOST $DB $POSTGRE_USER"
 else
 	return
 fi
