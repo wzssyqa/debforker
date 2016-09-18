@@ -92,7 +92,7 @@ local cmd=""
 if [ "$DB_TYPE" = "MYSQL" ];then
 	cmd="mysql -h$MYSQL_HOST -u$MYSQL_USER $DB"
 elif [ "$DB_TYPE" = "POSTGRE" ];then
-	cmd="psql --no-password -h$POSTGRE_HOST $POSTGRE_USER $DB"
+	cmd="psql --no-password -h$POSTGRE_HOST $DB $POSTGRE_USER"
 else
 	return
 fi
