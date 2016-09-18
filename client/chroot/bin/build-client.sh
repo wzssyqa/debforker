@@ -4,6 +4,9 @@
 # MAX_JOBS
 
 LC_ALL=C date -u
+TMP_SEC=$(awk 'BEGIN{srand();printf "%.16f\n",rand()}')
+sleep $(echo $TMP_SEC*10 | bc)
+
 
 cd ~/chroot
 . ~/chroot/bin/buildd-client.conf
