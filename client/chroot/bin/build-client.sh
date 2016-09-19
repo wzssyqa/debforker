@@ -65,7 +65,7 @@ elif [ "$DB_TYPE" = "POSTGRE" ];then
 	touch .pgpass.$UUID
 	chmod 600 .pgpass.$UUID
 	echo "${POSTGRE_HOST}:5432:${DB}:${POSTGRE_USER}:${POSTGRE_PASSWORD}" > .pgpass.$UUID
-	export PGPASSFILE=.pgpass.$UUID 
+	export PGPASSFILE=$(pwd)/.pgpass.$UUID 
 else
 	echo "Error: unknow DB_TYPE: only MYSQL and POSTGRE are supported"
 	exit -1
