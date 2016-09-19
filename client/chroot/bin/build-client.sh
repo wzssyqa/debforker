@@ -5,7 +5,7 @@
 
 LC_ALL=C date -u
 TMP_SEC=$(awk 'BEGIN{srand();printf "%.16f\n",rand()}')
-sleep $(echo $TMP_SEC*10 | bc)
+sleep $(echo $TMP_SEC*30 | bc)
 
 
 cd ~/chroot
@@ -65,6 +65,7 @@ elif [ "$DB_TYPE" = "POSTGRE" ];then
 	touch .pgpass.$UUID
 	chmod 600 .pgpass.$UUID
 	echo "${POSTGRE_HOST}:5432:${DB}:${POSTGRE_USER}:${POSTGRE_PASSWORD}" > .pgpass.$UUID
+	export PGPASSFILE=.pgpass.$UUID 
 else
 	echo "Error: unknow DB_TYPE: only MYSQL and POSTGRE are supported"
 	exit -1
@@ -105,7 +106,7 @@ else
 	return
 fi
 
-PGPASSFILE=.pgpass.$UUID $cmd <<EOF
+$cmd <<EOF
 UPDATE $ARCH SET status='$status', date='$date', buildd='$buildd', disk='$disk', time='$time', fstage='$fstage', summary='$summary' WHERE pkg='$pkg' and ver='$ver';
 EOF
 }
