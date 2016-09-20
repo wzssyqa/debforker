@@ -33,7 +33,8 @@ fi
 
 if [ "$REMOVE_OLDFILES" = "yes" ];then
 	for i in `ls -d sbuild/*/* 2>/dev/null`;do
-		tmp=`cat ~/chroot/stamps/* |sed 's/ /_/' | grep $i`
+		pp=$(echo $i | awk -F'/' '{print $NF}')
+		tmp=`cat ~/chroot/stamps/* |sed 's/ /_/' | grep $pp`
 		if [ -z "$tmp" ];then
 			rm -rf $i &
 		fi
