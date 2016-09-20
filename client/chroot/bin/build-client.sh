@@ -32,13 +32,14 @@ if [ "$(dpkg-architecture -qDEB_BUILD_ARCH)" != "$ARCH" ];then
 fi
 
 if [ "$REMOVE_OLDFILES" = "yes" ];then
-	for i in `ls sbuild/* 2>/dev/null`;do
+	for i in `ls -d sbuild/*/* 2>/dev/null`;do
 		tmp=`cat ~/chroot/stamps/* |sed 's/ /_/' | grep $i`
 		if [ -z "$tmp" ];then
-			rm -rf sbuild/$i &
+			rm -rf $i &
 		fi
 	done
 fi
+rmdir sbuild/* 2>/dev/null
 
 for i in `ls .my.cnf.* .pgpass.* 2>/dev/null`;do
 	uu=`echo $i | awk -F. '{print $NF}'`
