@@ -32,8 +32,8 @@ if [ "$(dpkg-architecture -qDEB_BUILD_ARCH)" != "$ARCH" ];then
 fi
 
 if [ "$REMOVE_OLDFILES" = "yes" ];then
-	for i in `ls sbuild`;do
-		tmp=`cat ~/chroot/stamps/* | grep $i`
+	for i in `ls sbuild/* 2>/dev/null`;do
+		tmp=`cat ~/chroot/stamps/* |sed 's/ /_/' | grep $i`
 		if [ -z "$tmp" ];then
 			rm -rf sbuild/$i &
 		fi
