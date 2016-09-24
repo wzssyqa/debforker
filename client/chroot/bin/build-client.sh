@@ -163,15 +163,17 @@ if [ "$BUILDD_TOOL" = 'pbuilder' ];then
           --basetgz ~/chroot/${DIST}-${ARCH}.tar.gz --buildplace /tmp \
           --timeout 40h \
             ${pkg_cv}.dsc >/dev/null
+   build_result=$?
 elif [ "$BUILDD_TOOL" = 'sbuild' ];then
    DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" sbuild -d $DIST --arch=${ARCH} ${pkg_cv}
+   build_result=$?
    find -type l | xargs rm -f
    mv -f *.build $logfile
 else
 	false
 fi
 
-if [ "$?" -eq "0" ];then
+if [ "$build_result" -eq "0" ];then
 	status="successful"
 fi
 date2=$(LC_ALL=C date +%s)
