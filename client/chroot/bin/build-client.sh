@@ -176,6 +176,10 @@ fi
 if [ "$build_result" -eq "0" ];then
 	status="successful"
 fi
+if [ -n "$(grep -i "^Status: skipped" $logfile)" ]; then
+	status="skipped"
+fi
+
 date2=$(LC_ALL=C date +%s)
 
 if [ "$status" = "successful" ];then
