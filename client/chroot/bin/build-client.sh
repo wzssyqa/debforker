@@ -165,7 +165,7 @@ if [ "$BUILDD_TOOL" = 'pbuilder' ];then
             ${pkg_cv}.dsc >/dev/null
    build_result=$?
 elif [ "$BUILDD_TOOL" = 'sbuild' ];then
-   DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" sbuild -d $DIST --arch=${ARCH} ${pkg_cv}
+   DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" sbuild -d $DIST --arch=${ARCH} ${pkg_v}
    build_result=$?
    find -type l | xargs rm -f
    mv -f *.build $logfile
